@@ -38,4 +38,15 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, getAllUsers };
+const getUserByUsername = async (req, res) => {
+    try {
+        const { username } = req.params;
+        const user = await UserModel.findOne({ username });
+        if (!user) return res.status(404).json({ message: 'User not found!', username });
+        return res.status(200).json(user);
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+module.exports = { registerUser, getAllUsers, getUserByUsername };
