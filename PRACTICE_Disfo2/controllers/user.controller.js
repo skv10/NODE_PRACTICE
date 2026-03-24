@@ -1,0 +1,52 @@
+const UserModel = require('../models/user.model');
+const { registerUserSchema } = require('../validations/user.validator');
+
+const registerUser = async (req, res) => {
+    try {
+        const { error, value } = registerUserSchema.validate(req.body);
+        if (error) return res.status(400).json({ message: error.details[0].message });
+
+        const newUser = UserModel({
+            fullName: value.fullName,
+            username: value.username,
+            email: value.email,
+        });
+
+        const response = await newUser.save();
+        return res.status(200).json({
+            message: 'New user created',
+            data: response,
+        });
+    } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({ message: 'Failed to create new user', reason: 'Already Exists in DB' });
+        }
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await UserModel.find();
+        if (!users.length) return res.status(404).json({ message: 'No Users found' });
+        return res.status(200).json({
+            message: 'Users retrieved successfully',
+            data: users,
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+const getUserByUsername = async (req, res) => {
+    try {
+        const { username } = req.params;
+        const user = await UserModel.findOne({ username });
+        if (!user) return res.status(404).json({ message: 'User not found!', username });
+        return res.status(200).json(user);
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+module.exports = { registerUser, getAllUsers, getUserByUsername };
