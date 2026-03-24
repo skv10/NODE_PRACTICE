@@ -25,4 +25,15 @@ const getAllDiscussions = async (req, res) => {
     }
 };
 
-module.exports = { createDiscussion, getAllDiscussions };
+const getDiscussionsByUsername = async (req, res) => {
+    try {
+        const { username } = req.params;
+        const discussions = await DiscussionModel.find({ author: username });
+        if (!discussions.length) return res.status(404).json({ message: 'No discussions found for this user', username });
+        res.status(200).json(discussions);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+};
+
+module.exports = { createDiscussion, getAllDiscussions, getDiscussionsByUsername };
