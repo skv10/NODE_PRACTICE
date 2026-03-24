@@ -15,4 +15,14 @@ const createDiscussion = async (req, res) => {
     }
 };
 
-module.exports = { createDiscussion };
+const getAllDiscussions = async (req, res) => {
+    try {
+        const discussions = await DiscussionModel.find();
+        if (!discussions.length) return res.status(404).json({ message: 'No Discussions found' });
+        res.status(200).json(discussions);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+};
+
+module.exports = { createDiscussion, getAllDiscussions };
